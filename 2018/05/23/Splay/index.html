@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="inmxYleFWM2i9Fx1s0HWWUs-czsecR8bBaYvZnAA9EI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})
+        (window,document,'script','dataLayer','GTM-5BS4ZB2');
+    </script>
+    <!-- End Google Tag Manager -->
+    
+
+    <title>伸展树 Splay - Monad's Blog</title>
+
+    <link rel="canonical" href="https://blog-archive.monadx.com/2018/05/23/Splay/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.min.css">
+
+    <!-- LightBox -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/lightbox2/2.9.0/css/lightbox.min.css">
+
+    <!-- hreflang -->
+    <link rel="alternate" href="https://blog-archive.monadx.com/2018/05/23/Splay/" hreflang="zh-Hans"/>
+
+    
+    <!-- KaTeX -->
+    <link href="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.css" rel="stylesheet" />
+    <link href="/css/katex-zoom.min.css" rel="stylesheet" />
+    
+
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+
+    <!-- Custom Fonts font-awesome -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!--<link rel="stylesheet" href="/css/font-awesome.min.css">-->
+
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- <body> -->
+
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5BS4ZB2"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top link-effect">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Monad's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/bg-1.png" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/bg-1.png')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#数据结构" title="数据结构">数据结构</a>
+                        
+                    </div>
+                    <h1>伸展树 Splay</h1>
+                    
+                    
+                    <h2 class="subheading">垃圾代码制造器</h2>
+                    
+                    <span class="meta">Posted by Monad on May 23, 2018</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            post-container">
+
+                <h3 id="概述">概述</h3>
+<p>伸展树（Splay）是二叉查找树的一种改进，所以和二叉查找树一样，Splay 也具有有序性。也就是说，对于 Splay 中的每一个节点 <code class="highlighter-rouge">x</code>，都满足其左树的每一个节点都小于 <code class="highlighter-rouge">x</code>，且左树的每一个节点都大于 <code class="highlighter-rouge">x</code>，也就是中序遍历的节点顺序不变。并且伸展树可以自我调整，方法就是下面的伸展操作。</p>
+
+<h3 id="伸展操作">伸展操作</h3>
+
+<h4 id="概念">概念</h4>
+<p>我们把 <code class="highlighter-rouge">splay(r, x)</code>（注意大小写）定义为把 Splay 中的第 <code class="highlighter-rouge">x</code> 个节点旋转至 <code class="highlighter-rouge">r</code> 处，但是要保证这个有序性。伸展操作分为三种情况。</p>
+
+<ol>
+  <li><strong>节点 <code class="highlighter-rouge">x</code> 的父节点 <code class="highlighter-rouge">y</code> 是根节点</strong>。这时如果 <code class="highlighter-rouge">x</code> 是左孩，那么就进行一次 Zig（右旋）操作；反之如果 <code class="highlighter-rouge">x</code> 是右孩，那么就进行一次 Zag（左旋）操作。其中 Zig 和 Zag 操作与 Treap 的左旋右旋操作一致。旋转后，<code class="highlighter-rouge">x</code> 成为 Splay 的根节点。<br />
+<a href="/img/post/Splay/Splay-root.svg"><img src="/img/post/Splay/Splay-root.svg" alt="情况一" /></a></li>
+  <li><strong>节点 <code class="highlighter-rouge">x</code> 的父节点 <code class="highlighter-rouge">y</code> 和 <code class="highlighter-rouge">y</code> 的父节点 <code class="highlighter-rouge">z</code> 在同一直线上</strong>。这时我们就按照实际情况进行一次 “Zig-Zig” 或 “Zag-Zag” 操作即可。
+<a href="/img/post/Splay/Splay-line.svg"><img src="/img/post/Splay/Splay-line.svg" alt="情况二" /></a></li>
+  <li><strong>节点 <code class="highlighter-rouge">x</code> 的父节点 <code class="highlighter-rouge">y</code> 和 <code class="highlighter-rouge">y</code> 的父节点 <code class="highlighter-rouge">z</code> 不在同一直线上</strong>。这时我们就按照实际情况进行一次 “Zig-Zag” 或 “Zag-Zig” 操作即可。
+<a href="/img/post/Splay/Splay-other.svg"><img src="/img/post/Splay/Splay-other.svg" alt="情况二" /></a></li>
+</ol>
+
+<p>这就是 Splay 的三种旋转的方法。</p>
+
+<h4 id="实现">实现</h4>
+<p>首先我们先定义一个 <code class="highlighter-rouge">struct NODE</code>：</p>
+<blockquote>
+  <p>注意事项：注意下面的 <code class="highlighter-rouge">c{NULL, NULL}</code> 是 C++11 的语法，在竞赛中最好在 <code class="highlighter-rouge">{}</code> 中初始化，以免编译错误。</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">NODE</span> <span class="p">{</span>
+    <span class="n">NODE</span> <span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">value</span><span class="p">,</span> <span class="n">_size</span><span class="p">;</span>
+    <span class="n">NODE</span><span class="p">()</span> <span class="o">:</span> <span class="n">c</span><span class="p">{</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">},</span> <span class="n">value</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">_size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{}</span>
+    <span class="kt">int</span> <span class="n">size</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="n">g</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">c</span><span class="p">[</span><span class="n">g</span><span class="p">]</span><span class="o">?</span> <span class="n">c</span><span class="p">[</span><span class="n">g</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">_size</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>伸展操作最重要的是：虽然上面的方法用到了一大堆父节点，但是<strong>不要把父节点和子节点混用，而且还用取地址符（<code class="highlighter-rouge">&amp;</code>）</strong>（所谓混用，指混合用在旋转中），这样会导致一些很神奇的错误（<code class="highlighter-rouge">&amp;</code> 的特性），这就是“垃圾代码制造器”的由来，惨痛的回忆……<br />
+不用父节点的话，我们就从根节点开始，应用分治的思想，一步一步往下找，然后再递归并（顺便）旋转。这样做的话，为了方便起见，我们在首位各加一个“哨兵”。<br />
+我们定义一个函数：<code class="highlighter-rouge">splay(NODE *&amp;p, int k)</code>，作用为把第 <code class="highlighter-rouge">k</code> 个节点旋转至 <code class="highlighter-rouge">p</code> 处，并且修改调用它的指针（<code class="highlighter-rouge">&amp;</code> 的特性）。<br />
+然后我们就要对第 <code class="highlighter-rouge">k</code> 个节点的位置进行分类讨论，我们就根据 <code class="highlighter-rouge">p</code> 的左树的节点数等来判断 <code class="highlighter-rouge">k</code> 处于哪个分支。<br />
+把上面的分类集合<del>压缩</del>一下，就可以得出以下代码。当然，<code class="highlighter-rouge">rotate</code> 的实现与 <code class="highlighter-rouge">Treap</code> 的实现完全一样。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">rotate</span><span class="p">(</span><span class="n">NODE</span> <span class="o">*&amp;</span><span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="kt">bool</span> <span class="n">g</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NODE</span> <span class="o">*</span><span class="n">t</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="o">!</span><span class="n">g</span><span class="p">];</span>
+    <span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="o">!</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="n">g</span><span class="p">];</span>
+    <span class="n">t</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+    <span class="n">maintain</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+    <span class="n">maintain</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">splay</span><span class="p">(</span><span class="n">NODE</span> <span class="o">*&amp;</span><span class="n">p</span><span class="p">,</span> <span class="kt">int</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">splay</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="p">);</span>
+            <span class="n">rotate</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">splay</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span> <span class="o">-</span> <span class="n">s</span><span class="p">);</span>
+            <span class="n">rotate</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">rotate</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">k</span> <span class="o">-=</span> <span class="n">s</span><span class="p">;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">splay</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="p">);</span>
+            <span class="n">rotate</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">splay</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span> <span class="o">-</span> <span class="n">s</span><span class="p">);</span>
+            <span class="n">rotate</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">rotate</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="基本操作">基本操作</h3>
+<p>利用 Splay 的一些特性，可以进行一些修改、查询操作。<br />
+首先 Splay 可以随意调整一个节点到某个位置，时间复杂度不会很大（下面会证明）。并且<del>随意</del>旋转后 Splay 的中序遍历不变，也就是数列中每个数的相对位置不变。<br />
+这样的话，我们就快速地可以把任意一个区间提取出来。要提取区间 <code class="highlighter-rouge">[l, r]</code>，就可以把 <code class="highlighter-rouge">l-1</code> 旋转到根节点，再把 <code class="highlighter-rouge">r+1</code> 旋转至根节点的右孩子（边界需要按照实际情况进行调整）。
+<a href="/img/post/Splay/Splay-extract.svg"><img src="/img/post/Splay/Splay-extract.svg" alt="提取区间" /></a>
+代码也很好写，就<del>随便</del>调用一下 <code class="highlighter-rouge">splay</code> 函数即可。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">extract</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="n">l</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">r</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">splay</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">l</span><span class="p">);</span>
+    <span class="n">splay</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">r</span><span class="o">-</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>提取之后，根据中序遍历，该区间就位于以 <code class="highlighter-rouge">root-&gt;c[1]-&gt;c[0]</code> 为根的子树中，就可以很方便地进行插入、求和、删除、翻转等操作，非常灵活。</p>
+
+<h4 id="查询">查询</h4>
+<p>查询一个区间，我们可以按上面的方法把这个区间提取出来，然后返回对应子树的信息即可。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">Query</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="n">l</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">r</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">extract</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">root</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// 也可以返回其它信息</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="插入">插入</h4>
+<p>插入操作既可以插入一棵子树，也可以插入一个节点，其本质都是相同的。一般来说，如果是插入多个数，我比较喜欢构造一棵 Splay 之后再插入进去（OO 的好处）。</p>
+<blockquote>
+  <p>注意事项：<code class="highlighter-rouge">&amp;&amp;</code> 也是 C++11 的语法之一，有移动的语义。在日常竞赛中，可以改为一个 <code class="highlighter-rouge">&amp;</code>，但也要注意传进来的 Splay 仍会移动进去（不保留原本）。</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">Insert</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="n">pos</span><span class="p">,</span> <span class="n">mSplay</span> <span class="o">&amp;&amp;</span><span class="n">sp</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">extract</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">pos</span><span class="p">);</span>
+	<span class="n">root</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="p">.</span><span class="n">root</span><span class="p">;</span>
+	<span class="n">sp</span><span class="p">.</span><span class="n">root</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+	<span class="n">maintain</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+	<span class="n">maintain</span><span class="p">(</span><span class="n">root</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="删除">删除</h4>
+<p>删除操作也是要把对应的子树提取出来，然后整棵删除即可。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">remove</span><span class="p">(</span><span class="n">NODE</span> <span class="o">*&amp;</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="k">delete</span> <span class="n">p</span><span class="p">;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">Delete</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="n">l</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">r</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">extract</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">remove</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="n">maintain</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="n">maintain</span><span class="p">(</span><span class="n">root</span><span class="p">);</span>	
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="翻转">翻转</h4>
+<p>区间翻转可谓是 Splay 最有特色的操作之一，非常的灵活。翻转一个区间 <code class="highlighter-rouge">[l, r]</code>，我们可以把这个区间提取出来，交换两个子节点，最后打一个 lazy 标记让下面的子树逐级翻转即可。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">pushdown</span><span class="p">(</span><span class="n">NODE</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">rotate</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">p</span><span class="o">-&gt;</span><span class="n">rotate</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="n">swap</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">rotate</span> <span class="o">^=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">rotate</span> <span class="o">^=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">Reverse</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span> <span class="n">l</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">r</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">extract</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">root</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">rotate</span> <span class="o">^=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">pushdown</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="n">maintain</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="n">maintain</span><span class="p">(</span><span class="n">root</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>对于其它区间修改操作，也可以像这样打一个 lazy 标记来处理。需要注意的是，要注意 <code class="highlighter-rouge">pushdown</code> 和 <code class="highlighter-rouge">maintain</code> 的时机，不要在 <code class="highlighter-rouge">pushdown</code> 后又用 <code class="highlighter-rouge">maintain</code> 右修改回去了（笑）。</p>
+
+<h3 id="整合代码">整合代码</h3>
+<p>上面的代码都是精心设计过的（雾），可以较好地协调工作。如果需要的话，也可以把上面的代码放进一个 <code class="highlighter-rouge">class</code> 中（这就是上面 <code class="highlighter-rouge">mSplay</code> 的由来），其中大写开头的都是导出函数，剩下的都可以置为 <code class="highlighter-rouge">private</code>，<del>是不是封装地很好呢（雾）</del>。<br />
+使用 OOP（面向对象）设计思想可以在一定程度上使程序变得简单易懂易用（像 <code class="highlighter-rouge">vector</code> 等一样）<del>，并且充满了浓浓的 C++ 气息（雾）</del>。</p>
+
+<h3 id="毒瘤例题">毒瘤例题</h3>
+<p>题目：[NOI2005] 维护数列<br />
+链接：<a href="https://www.luogu.org/problemnew/show/P2042">洛谷</a><br />
+正解（雾）：<a href="https://www.luogu.org/recordnew/show/7500133">R7500133</a></p>
+
+
+            <blockquote>
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-1x fa-inverse fontawesome-text">CC</i>
+                </span>
+                原创文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0协议</a>进行许可，转载请注明：“转载自：<a href="https://blog-archive.monadx.com/2018/05/23/Splay/">伸展树 Splay</a>”
+            </blockquote>
+
+            <hr>
+
+            
+            <div id="gitalk-container"></div>
+            
+
+            
+
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/2018/05/20/Middle/" data-toggle="tooltip" data-placement="top" title="[国家集训队] Middle">&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/2018/07/17/Gaussian-Elimination/" data-toggle="tooltip" data-placement="top" title="高斯消元">Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+        </div>
+<!-- Side Catalog Container -->
+    
+        <div class="
+            col-lg-2 col-lg-offset-0
+            visible-lg-block
+            sidebar-container
+            catalog-container">
+            <div class="side-catalog">
+                <hr class="hidden-sm hidden-xs">
+                <h5>
+                    <a class="catalog-toggle" href="#">CATALOG</a>
+                </h5>
+                <ul class="catalog-body"></ul>
+            </div>
+        </div>
+    
+
+<!-- Sidebar Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            sidebar-container">
+
+            <!-- Featured Tags -->
+            
+
+            <!-- Friends Blog -->
+            
+            <hr>
+            <h5>FRIENDS</h5>
+            <ul class="list-inline">
+                
+                    <li><a href="https://ghastlcon.cf">Ghastlcon</a></li>
+                
+                    <li><a href="https://Ufowoqqqo.github.io">Ufowoqqqo</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/littlewyy">wyy</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/yiyiyizqy">zqy</a></li>
+                
+                    <li><a href="https://yhf4aspe.github.io">aspe</a></li>
+                
+                    <li><a href="https://zhengyucheng.github.io">JU</a></li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+
+
+<!-- Gitalk -->
+<script type="text/javascript">
+function LoadGitalk() {
+    if (typeof Gitalk === 'undefined') {
+        setTimeout(LoadGitalk, 100);
+    }
+    else {
+        var gitalk = new Gitalk({
+            clientID: 'a2c5e9f63b2635ec4592',
+            clientSecret: '2a612247e7f9efd3951dac1d6e46307e4d216729',
+            repo: 'YanWQ-monad.github.io-archive',
+            owner: 'YanWQ-monad',
+            admin: ['YanWQ-monad'],
+            id: location.pathname,      // Ensure uniqueness and length less than 50
+            distractionFreeMode: false  // Facebook-like distraction free mode
+        });
+
+        gitalk.render('gitalk-container');
+    }
+}
+LoadGitalk();
+</script>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse fontawesome-text">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://plus.google.com/u/0/112757454778156334087">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-google-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="mailto:YanWQ-monad+blog@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="tencent://message/?uin=643172561">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-qq fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="https://cdn.staticfile.org/jquery/2.1.3/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+<script src="/js/jqeury.nav.min.js "></script>
+
+
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+
+<!-- LightBox -->
+<script src="https://cdn.bootcss.com/lightbox2/2.9.0/js/lightbox.min.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c, a) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (a) {
+        for (var i=0; i<a.length; i++) { o.setAttribute(a[i][0], a[i][1]); }
+      }
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.min.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Canvas-Nest -->
+<!--
+<script>
+    async("https://cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js", undefined, [["count", 32]]);
+</script>
+-->
+
+
+<!-- KaTeX -->
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.js"></script>
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/contrib/auto-render.min.js"></script>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(
+      document.body,
+      {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false },
+        ],
+        macros: {
+          '\\floor': '\\left \\lfloor #1 \\right \\rfloor'
+        }
+      }
+    );
+    enlarge_katex_loaded();
+  });
+</script>
+
+<!-- KaTeX zoom -->
+<script src="/js/katex-zoom.min.js"></script>
+
+
+<!-- LightBox for Markdown -->
+<script type="text/javascript">
+$(function() {
+    $('img').each(function() {
+        var that = $(this);
+        that.closest('a').attr('data-toggle', 'lightbox').attr('rel', 'lightbox').attr('data-title', that.attr('alt'));
+    });
+
+    $(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
+        e.preventDefault();
+        $(this).ekkoLightbox();
+    });
+})
+</script>
+
+<!-- Picture figure -->
+<script type="text/javascript">
+$('img').closest('a').wrap('<figure></figure>');
+
+$(function() {
+    $('figure').each(function() {
+        var that = $(this)[0];
+        var img        = that.getElementsByTagName('a')[0].getElementsByTagName('img')[0];
+        var figcaption = document.createElement('figcaption');
+        var title      = document.createTextNode($(img).attr('alt'));
+        $(figcaption).attr('align', 'center');
+        figcaption.appendChild(title     );
+        that      .appendChild(figcaption);
+    });
+})
+</script>
+
+<!-- Baidu Analytics -->
+
+
+<!-- Google Analytics is in Head -->
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+    generateCatalog(".catalog-body");
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+</body>
+
+</html>

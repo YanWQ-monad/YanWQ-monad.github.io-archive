@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="inmxYleFWM2i9Fx1s0HWWUs-czsecR8bBaYvZnAA9EI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})
+        (window,document,'script','dataLayer','GTM-5BS4ZB2');
+    </script>
+    <!-- End Google Tag Manager -->
+    
+
+    <title>NOIP 2018 游记 - Monad's Blog</title>
+
+    <link rel="canonical" href="https://blog-archive.monadx.com/2018/11/13/NOIP-2018/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.min.css">
+
+    <!-- LightBox -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/lightbox2/2.9.0/css/lightbox.min.css">
+
+    <!-- hreflang -->
+    <link rel="alternate" href="https://blog-archive.monadx.com/2018/11/13/NOIP-2018/" hreflang="zh-Hans"/>
+
+    
+    <!-- KaTeX -->
+    <link href="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.css" rel="stylesheet" />
+    <link href="/css/katex-zoom.min.css" rel="stylesheet" />
+    
+
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+
+    <!-- Custom Fonts font-awesome -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!--<link rel="stylesheet" href="/css/font-awesome.min.css">-->
+
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- <body> -->
+
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5BS4ZB2"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top link-effect">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Monad's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/bg-1.png" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/bg-1.png')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#比赛" title="比赛">比赛</a>
+                        
+                    </div>
+                    <h1>NOIP 2018 游记</h1>
+                    
+                    
+                    <h2 class="subheading">AFO.</h2>
+                    
+                    <span class="meta">Posted by Monad on November 13, 2018</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            post-container">
+
+                <blockquote>
+  <p><del>突然想起来好像 <a href="/2017/11/11/NOIP2017">NOIP 2017 游记</a>“明天再写”的 flag 还在</del>……</p>
+</blockquote>
+
+<h3 id="day-0">Day 0</h3>
+<p>上午考完假的信心赛，中午机房第一次锁门，只能回去睡觉。14:45 出发，一小时多后抵达万达。<br />
+晚上去万达吃饭，不知是不是命运的安排，居然去了跟往年一模一样的店吃饭，而且坐的桌子还一样，座位也一样（除了当时的 yhf 换成了 lty）。<br />
+晚上回去忘记干了什么，企图换房失败，大概十点多就睡了。</p>
+
+<h3 id="day-1">Day 1</h3>
+<p>早上 6:50 起床，吃了个 sandwich 就去考场了，到达考场大约 8:10。发现右前方是 yhf，左后方是 yww（RP ++）。<br />
+Day 1 的密码是 <code class="highlighter-rouge">Fei2Xue@Lian$Tian!</code>，然而当时并不懂含义。</p>
+
+<p>首先看 T1，表示没有做过原题，想了 20 分钟（在想比较优雅的实现），再加上 10 分钟的编写，就把大样例过了（蒟蒻表示并没有注意 “首尾相连”）。并且顺手写了个对拍。<br />
+然后看 T2，看完题目，完了，线性基，没有复习，GG。然后看了 T3 后回来企图推高斯消元和线性基，30 分钟后无果。后来灵机一动发现貌似可以背包，时间复杂度 $O(n \cdot a \cdot T)$（当时：我 *，那么水的吗），写出来后一次过大样例，就去搞 T3 了（此时已过去 1.5h）。</p>
+
+<p>T3 的话呢，一开始也不觉得自己一定会做，就先把部分分的打了。先打了一下是链的情况，然后又打了一下 $m = 1$。<br />
+然后看到了 $a_i = 1$ 这么一个数据范围（菊花图），当时看成了边权为 1。然后就很纳闷，这是个什么鬼部分分。然后就写了一个树形 DP，并且证明了尽量在子树中匹配得尽量多不会变差，就认为 T3 可以水 55 了（三个部分分用了三个 <code class="highlighter-rouge">namespace</code>）。<br />
+继续想 T3 正解。突然灵机一动发现 $a_i = 1$ 貌似可以做 $a_i \not = 1$ 的情况，就很开心地复制了过来，测了一下大样例，发现居然不对（打脸）。想了一想发现还要保证在匹配得尽量多的同时要让尽可能大的数上传，于是就 <del>xjb</del> 实现了一发，调了几下居然把大样例过了。<br />
+emmmm？我 AK 了？？？？？？感觉有点虚，就把 T3 正解去跟我的部分分对拍一下。一拍就发现问题：$n = 1000$ 怎么跑那么慢（答案没错）？发现时间复杂度正常（$O(n \log^{2}n)$），gprof 显示时间都在 dfs 上，于是肉眼调错。<br />
+于是发现 <code class="highlighter-rouge">while (...) p++;</code> 中的条件居然没有约束 <code class="highlighter-rouge">p</code> 的范围（没有 RE 也是神奇），就加上了。再拍一下，正常多了。<br />
+10 分钟后，把 $n$ 调大，发现 $n = 10000$ 也很慢（3s+），继续肉眼挑错。发现还是 <code class="highlighter-rouge">while (...) p++;</code> 这个地方，把 <code class="highlighter-rouge">p &lt;= qt</code> 错写成 <code class="highlighter-rouge">p &lt;= n</code>（差点写成 $n^2$），改过来之后 $n = 50000$ 可以跑过了。<br />
+这是还有半小时结束，玩了 10min 的小恐龙（因为没有扫雷）。</p>
+
+<p>12:00 结束，去吃饭，吃饭时发现全世界都 AK 了。回酒店玩了一个下午和晚上，成功把 <a href="http://www.chameleonrun.com">Chameleon Run</a> 玩到全三星，顺便刷了一下记录（晚上 LGJ 没有来查房，估计是因为电梯停电了）。<br />
+当然还顺便看了一下 PJ 的题目，发现 T3 智商不足，还有普及的解压密码是改革开放……</p>
+
+<h3 id="day-2">Day 2</h3>
+<p>早上 6:50 闹钟响了，居然点了关闭，感觉有点困，于是躺了一会，再次醒来已经 7:20 了。下去吃了一个 main 包，跟昨天差不多时间到达考场。<br />
+Day 2 的密码是 <code class="highlighter-rouge">%xiao#SHU!shen9XIA</code>。</p>
+
+<p>首先看 T1，感觉访问的顺序不就是贪心走最小嘛，打完程序过了样例一，样例二 GG。画样例，发现贪心只对树有效，当 $n = m$ 时会有环，有且仅有一个。就按照这个想下去，20 min 后写了出来，也是一次过大样例。<br />
+然后去看 T2，看了 5 min（连样例都没画），觉得有点头大，就去看 T3。发现 T3 还好一点，于是先把 T3 的 44 分暴力打了一下，就回去看 T2 了。</p>
+
+<p>T2 打了一下暴力，又画了一下样例，发现一个规律：对于每个 $2 \times 2$ 的矩形，左下角一定要大于等于右上角。以为这个就是正解，结果发现过不了 $3 \times 3$ 这个样例。<br />
+把中间结果输出了一下，发现的确有反例，但是又不会处理，只能把 $n,m \leq 3$ 和 $n \leq 2$ 的部分分做了（期望得分 50）。<br />
+然后把暴力优化了一下后拿出去打 $ 8 \times 8$ 的表（用了挺久的），希望表没有打错（可怜.jpg）。</p>
+
+<p>这天没有玩小恐龙，emmmmm。</p>
+
+<!--
+停课结束了，文化课即将~~强势~~回归。一年光阴，转瞬即逝，却碌碌无为。
+-->
+
+<p>题解占坑。</p>
+
+
+            <blockquote>
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-1x fa-inverse fontawesome-text">CC</i>
+                </span>
+                原创文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0协议</a>进行许可，转载请注明：“转载自：<a href="https://blog-archive.monadx.com/2018/11/13/NOIP-2018/">NOIP 2018 游记</a>”
+            </blockquote>
+
+            <hr>
+
+            
+            <div id="gitalk-container"></div>
+            
+
+            
+
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/2018/07/24/M%C3%B6bius-inversion/" data-toggle="tooltip" data-placement="top" title="莫比乌斯反演">&larr; Previous Post</a>
+                </li>
+                
+                
+            </ul>
+
+        </div>
+<!-- Side Catalog Container -->
+    
+        <div class="
+            col-lg-2 col-lg-offset-0
+            visible-lg-block
+            sidebar-container
+            catalog-container">
+            <div class="side-catalog">
+                <hr class="hidden-sm hidden-xs">
+                <h5>
+                    <a class="catalog-toggle" href="#">CATALOG</a>
+                </h5>
+                <ul class="catalog-body"></ul>
+            </div>
+        </div>
+    
+
+<!-- Sidebar Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            sidebar-container">
+
+            <!-- Featured Tags -->
+            
+
+            <!-- Friends Blog -->
+            
+            <hr>
+            <h5>FRIENDS</h5>
+            <ul class="list-inline">
+                
+                    <li><a href="https://ghastlcon.cf">Ghastlcon</a></li>
+                
+                    <li><a href="https://Ufowoqqqo.github.io">Ufowoqqqo</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/littlewyy">wyy</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/yiyiyizqy">zqy</a></li>
+                
+                    <li><a href="https://yhf4aspe.github.io">aspe</a></li>
+                
+                    <li><a href="https://zhengyucheng.github.io">JU</a></li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+
+
+<!-- Gitalk -->
+<script type="text/javascript">
+function LoadGitalk() {
+    if (typeof Gitalk === 'undefined') {
+        setTimeout(LoadGitalk, 100);
+    }
+    else {
+        var gitalk = new Gitalk({
+            clientID: 'a2c5e9f63b2635ec4592',
+            clientSecret: '2a612247e7f9efd3951dac1d6e46307e4d216729',
+            repo: 'YanWQ-monad.github.io-archive',
+            owner: 'YanWQ-monad',
+            admin: ['YanWQ-monad'],
+            id: location.pathname,      // Ensure uniqueness and length less than 50
+            distractionFreeMode: false  // Facebook-like distraction free mode
+        });
+
+        gitalk.render('gitalk-container');
+    }
+}
+LoadGitalk();
+</script>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse fontawesome-text">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://plus.google.com/u/0/112757454778156334087">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-google-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="mailto:YanWQ-monad+blog@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="tencent://message/?uin=643172561">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-qq fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="https://cdn.staticfile.org/jquery/2.1.3/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+<script src="/js/jqeury.nav.min.js "></script>
+
+
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+
+<!-- LightBox -->
+<script src="https://cdn.bootcss.com/lightbox2/2.9.0/js/lightbox.min.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c, a) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (a) {
+        for (var i=0; i<a.length; i++) { o.setAttribute(a[i][0], a[i][1]); }
+      }
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.min.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Canvas-Nest -->
+<!--
+<script>
+    async("https://cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js", undefined, [["count", 32]]);
+</script>
+-->
+
+
+<!-- KaTeX -->
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.js"></script>
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/contrib/auto-render.min.js"></script>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(
+      document.body,
+      {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false },
+        ],
+        macros: {
+          '\\floor': '\\left \\lfloor #1 \\right \\rfloor'
+        }
+      }
+    );
+    enlarge_katex_loaded();
+  });
+</script>
+
+<!-- KaTeX zoom -->
+<script src="/js/katex-zoom.min.js"></script>
+
+
+<!-- LightBox for Markdown -->
+<script type="text/javascript">
+$(function() {
+    $('img').each(function() {
+        var that = $(this);
+        that.closest('a').attr('data-toggle', 'lightbox').attr('rel', 'lightbox').attr('data-title', that.attr('alt'));
+    });
+
+    $(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
+        e.preventDefault();
+        $(this).ekkoLightbox();
+    });
+})
+</script>
+
+<!-- Picture figure -->
+<script type="text/javascript">
+$('img').closest('a').wrap('<figure></figure>');
+
+$(function() {
+    $('figure').each(function() {
+        var that = $(this)[0];
+        var img        = that.getElementsByTagName('a')[0].getElementsByTagName('img')[0];
+        var figcaption = document.createElement('figcaption');
+        var title      = document.createTextNode($(img).attr('alt'));
+        $(figcaption).attr('align', 'center');
+        figcaption.appendChild(title     );
+        that      .appendChild(figcaption);
+    });
+})
+</script>
+
+<!-- Baidu Analytics -->
+
+
+<!-- Google Analytics is in Head -->
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+    generateCatalog(".catalog-body");
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+</body>
+
+</html>

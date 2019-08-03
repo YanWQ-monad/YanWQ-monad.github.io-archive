@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="inmxYleFWM2i9Fx1s0HWWUs-czsecR8bBaYvZnAA9EI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})
+        (window,document,'script','dataLayer','GTM-5BS4ZB2');
+    </script>
+    <!-- End Google Tag Manager -->
+    
+
+    <title>高斯消元 - Monad's Blog</title>
+
+    <link rel="canonical" href="https://blog-archive.monadx.com/2018/07/17/Gaussian-Elimination/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.min.css">
+
+    <!-- LightBox -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/lightbox2/2.9.0/css/lightbox.min.css">
+
+    <!-- hreflang -->
+    <link rel="alternate" href="https://blog-archive.monadx.com/2018/07/17/Gaussian-Elimination/" hreflang="zh-Hans"/>
+
+    
+    <!-- KaTeX -->
+    <link href="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.css" rel="stylesheet" />
+    <link href="/css/katex-zoom.min.css" rel="stylesheet" />
+    
+
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+
+    <!-- Custom Fonts font-awesome -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!--<link rel="stylesheet" href="/css/font-awesome.min.css">-->
+
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- <body> -->
+
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5BS4ZB2"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top link-effect">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Monad's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/bg-1.png" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/bg-1.png')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#数论" title="数论">数论</a>
+                        
+                    </div>
+                    <h1>高斯消元</h1>
+                    
+                    
+                    <h2 class="subheading"></h2>
+                    
+                    <span class="meta">Posted by Monad on July 17, 2018</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            post-container">
+
+                <h3 id="引入">引入</h3>
+<p>我们把含有 <code class="highlighter-rouge">n</code> 个未知数且最高次数为 <code class="highlighter-rouge">1</code> 的方程称为“n 元线性方程”。</p>
+<blockquote>
+  <p>如 $ 3x_1 + 5x_2 - 2x_3 = 5 $ 就是一个 3 元线性方程。</p>
+</blockquote>
+
+<p>然后我们把若干个 n 元线性方程列在一起，就构成了一个 n 元线性方程组。</p>
+<blockquote>
+  <p>如 $ \begin{cases} x + 2y = 5 \\ 2x - y = 1 \end{cases} $ 就是一个 2 元线性方程组。</p>
+</blockquote>
+
+<hr />
+
+<p>假设我们现在有 <code class="highlighter-rouge">m</code> 条方程以及 <code class="highlighter-rouge">n</code> 个未知数，我们要把这 <code class="highlighter-rouge">n</code> 个未知数的值求出来。<br />
+我们可以简单地先对这 <code class="highlighter-rouge">m</code> 条线性方程进行简单的化简，让每一条线性方程都化简成 $a_1x_1 + a_2x_2 + a_3x_3 + … + a_nx_n = c$ 的形式。<br />
+这样，这个方程组就写成这种形式：</p>
+
+<div class="kdmath">$$
+\begin{cases}
+a_{1,1}x_1 + a_{1,2}x_2 + a_{1,3}x_3 + \cdots + a_{1,n}x_n &= c \\
+a_{2,1}x_1 + a_{2,2}x_2 + a_{2,3}x_3 + \cdots + a_{2,n}x_n &= c \\
+a_{3,1}x_1 + a_{3,2}x_2 + a_{3,3}x_3 + \cdots + a_{3,n}x_n &= c
+\end{cases}
+$$</div>
+
+<p>但是，有意义的部分就只有系数 <code class="highlighter-rouge">a</code> 和 <code class="highlighter-rouge">c</code>。<br />
+我们可以把它们单独取出来，构成一个矩阵：</p>
+
+<div class="kdmath">$$
+\left [
+\begin{array}{ccc|c}
+
+a_{1,1} & \cdots & a_{1,n} & c_1    \\
+a_{2,1} & \cdots & a_{2,n} & c_2    \\
+\vdots  & \ddots & \vdots  & \vdots \\
+a_{m,1} & \cdots & a_{m,n} & c_m
+
+\end{array}
+\right ]
+$$</div>
+
+<h3 id="高斯消元">高斯消元</h3>
+<p>高斯消元就是在矩阵上进行运算，从而得出原方程的解的算法。</p>
+
+<h4 id="矩阵的变换">矩阵的变换</h4>
+<p>要解出方程，我们要对这个矩阵进行 <code class="highlighter-rouge">3</code> 个基本操作，这 <code class="highlighter-rouge">3</code> 个基本操作是不会改变原方程的解的。</p>
+
+<ol>
+  <li>
+    <p><strong>让某一行乘一个非零的常数 <code class="highlighter-rouge">k</code></strong><br />
+$ a_1x_1 + a_2x_2 + \cdots + a_nx_n = c \Leftrightarrow ka_1x_1 + ka_2x_2 + \cdots + ka_nx_n = kc $<br />
+矩阵形式就是 $    \left [ \begin{array}{ccc|c}  a_{1,1} &amp; \cdots &amp;  a_{1,n} &amp;  c_1 \\ a_{2,1} &amp; \cdots &amp; a_{2,n} &amp; c_2 \\ \vdots &amp; \ddots &amp; \vdots &amp; \vdots \\ a_{m,1} &amp; \cdots &amp; a_{m,n} &amp; c_m \end{array} \right ] 
+\Leftrightarrow \left [ \begin{array}{ccc|c} ka_{1,1} &amp; \cdots &amp; ka_{1,n} &amp; kc_1 \\ a_{2,1} &amp; \cdots &amp; a_{2,n} &amp; c_2 \\ \vdots &amp; \ddots &amp; \vdots &amp; \vdots \\ a_{m,1} &amp; \cdots &amp; a_{m,n} &amp; c_m \end{array} \right ] $</p>
+  </li>
+  <li>
+    <p><strong>交换两行</strong><br />
+即 $            \left [ \begin{array}{ccc|c} a_{1,1} &amp; \cdots &amp; a_{1,n} &amp; c_1 \\ a_{2,1} &amp; \cdots &amp; a_{2,n} &amp; c_2 \\ \vdots &amp; \ddots &amp; \vdots &amp; \vdots \\ a_{m,1} &amp; \cdots &amp; a_{m,n} &amp; c_m \end{array} \right ] 
+\Leftrightarrow \left [ \begin{array}{ccc|c} a_{2,1} &amp; \cdots &amp; a_{2,n} &amp; c_2 \\ a_{1,1} &amp; \cdots &amp; a_{1,n} &amp; c_1 \\ \vdots &amp; \ddots &amp; \vdots &amp; \vdots \\ a_{m,1} &amp; \cdots &amp; a_{m,n} &amp; c_m \end{array} \right ] $</p>
+  </li>
+  <li>
+    <p><strong>让一行加上另外一行</strong><br />
+即 $ (a_{1,1} \pm a_{2,1})x_1 + (a_{1,2} \pm a_{2,2})x_2 + \cdots + (a_{1,n} \pm a_{2,n})x_n = c_1 + c_2 $。<br />
+用矩阵表示，即  $ \left [ \begin{array}{ccc|c} a_{1,1} &amp; \cdots &amp; a_{1,n} &amp; c_1 \\ a_{2,1} &amp; \cdots &amp; a_{2,n} &amp; c_2 \\ \vdots &amp; \ddots &amp; \vdots &amp; \vdots \\ a_{m,1} &amp; \cdots &amp; a_{m,n} &amp; c_m \end{array} \right ] 
+\Leftrightarrow \left [ \begin{array}{ccc|c} a_{1,1} + a_{2,1} &amp; \cdots &amp; a_{1,n} + a_{2,n} &amp; c_1 + c_2 \\ a_{2,1} &amp; \cdots &amp; a_{2,n} &amp; c_2 \\ \vdots &amp; \ddots &amp; \vdots &amp; \vdots \\ a_{m,1} &amp; \cdots &amp; a_{m,n} &amp; c_m \end{array} \right ] $</p>
+  </li>
+</ol>
+
+<h4 id="消元">消元</h4>
+
+<p>然后，解决这个多元方程的重要思想就是消元，就是要让方程中的未知数逐步减少。<br />
+其主要方法如下：首先选一个要消去的元，我们称之为主元。如果以 $ x_1 $ 为例，把第 <code class="highlighter-rouge">2</code> ~ <code class="highlighter-rouge">m</code> 个方程中 $ x_1 $ 的系数都消成 <code class="highlighter-rouge">0</code>。要让 $ a_{i,1} $ 变成 <code class="highlighter-rouge">0</code>，我们可以让第 <code class="highlighter-rouge">1</code> 行乘上 $ \frac{a_{i,1}}{a_{1,1}} $，这样第 <code class="highlighter-rouge">i</code> 行减去第 <code class="highlighter-rouge">1</code>  行，$a_{i,1}$就会变成 <code class="highlighter-rouge">0。</code>当然，其它项也要相减。合并上述操作，可得要消除第 <code class="highlighter-rouge">i</code> 个元，对于第<code class="highlighter-rouge">j</code> 行第 <code class="highlighter-rouge">k</code> 列（<code class="highlighter-rouge">i &lt; j</code>），我们要把 $a_{j,k}$ 减去 $ a_{i,k} \times \frac{a_{j,i}}{a_{i,i}} $；当然，$ c_j $ 也要减哦。<br />
+这样的话，我们一直这样消元下去，直到把每一行都处理完之后，就可以得到一个如下所示的矩阵，我们把它称为“上三角矩阵”。</p>
+
+<div class="kdmath">$$
+\left [
+\begin{array}{ccccc|c}
+
+a_{1,1} & a_{1,2} & a_{1,3} & \cdots & a_{1,n} & c_1    \\
+0 & a_{2,2} & a_{2,3} & \cdots & a_{2,n} & c_2    \\
+0 & 0 & a_{3,3} & \cdots & a_{2,n} & c_2    \\
+\vdots  & \vdots  & \vdots  & \ddots & \vdots  & \vdots \\
+0 & 0 & 0 & \cdots & a_{m,n} & c_m
+
+\end{array}
+\right ]
+$$</div>
+
+<h4 id="求解">求解</h4>
+
+<p>通过上面的过程，在一般情况下（特殊情况下面会提及），最后一个非零的方程就只有一个元，我们可以直接求出这个元的值。然后再代入倒数第二个方程，就可以算出倒数第二个元……这样以此类推，我们就可以求出这个方程组的解了。</p>
+
+<h5 id="高斯约旦消元">高斯约旦消元</h5>
+<p>像上面，我们消元的结果是消成一个上三角矩阵，然后还要一个一个数代回去，有点小小的麻烦。其实只需要一点点的改进就可以做得更加好。<br />
+我们上面是把第 <code class="highlighter-rouge">i+1</code> 到第 <code class="highlighter-rouge">m</code> 行把系数 $ a_{j,i} $ 消成 <code class="highlighter-rouge">0</code>，然而我们可以更“暴力”一点：直接把第 <code class="highlighter-rouge">1</code> 到第 <code class="highlighter-rouge">m</code> 行把系数 $ a_{j,i} $ 消成 <code class="highlighter-rouge">0</code>！<br />
+这样的话，最后的结果就是 <code class="highlighter-rouge">m</code> 个一元一次方程，不需要回代就可以解除每一个数的解。</p>
+
+<h4 id="特殊情况">特殊情况</h4>
+<p>当然，也不是所有的方程都可以求出解，也不是所有的方程都有唯一解。 我们可以分成三种情况：</p>
+<ol>
+  <li><strong>无解</strong>：有一个方程系数 <code class="highlighter-rouge">a</code> 都为 <code class="highlighter-rouge">0</code>，但是它的常数 <code class="highlighter-rouge">c</code> 不为 <code class="highlighter-rouge">0</code> ，此时原方程组无解；</li>
+  <li><strong>多解</strong>：有一个方程有两个或以上的系数不为 <code class="highlighter-rouge">0</code>，就像这个方程：$ 2x_1 + 3x_2 = 8 $，它有无数个解。以 $ x_1 $ 为例，$ x_1 $ 的解可以写成 $ x_1 = \frac{8 - 3x_2}{2} $。我们就把 $ x_1 $ 称为主元，把 $ x_2 $ 等其它的元称为自由元。这样的方程组有无数个解，一般出现在 <code class="highlighter-rouge">m &lt; n</code> 的情况中；</li>
+  <li><strong>唯一解</strong>：即正常情况，有且仅有一个解。</li>
+</ol>
+
+<p>还有一个问题就是，我们刚刚选择主元的时候，第 <code class="highlighter-rouge">i</code> 行选择 $ x_i $ 作为主元。这里就会有一个问题，如果 $ a_{i,i} $ 为 <code class="highlighter-rouge">0</code> 怎么办？我们可以从 <code class="highlighter-rouge">i+1</code> 行找到第 <code class="highlighter-rouge">m</code> 行，找到一个 $ a_{i,i} $ 不为 <code class="highlighter-rouge">0</code> 的行，与第 <code class="highlighter-rouge">i</code> 行交换后继续消元即可。<br />
+从这里可以发现，理论上任意一行都是可以拿来消元的（只有 $ a_{i,i} $ 不为 <code class="highlighter-rouge">0</code>）。但是考虑到我们消元的时候我们要计算 $ \frac{a_{j,i}}{a_{i,i}} $，如果 $ a_{i,i} $ 较小，除出来的值就会很大。为了<del>不爆炸</del>精准起见，我们选一个绝对值最大的 $ a_{k,i} $ 代替 $ a_{i,i} $ 进行消元。如果绝对值最大的仍为 <code class="highlighter-rouge">0</code>，就说明发生了多解或无解的情况，可以跳过该次消元，到后面再来判断（有的题目可以直接当作错误或异常处理）。</p>
+
+<h4 id="代码">代码</h4>
+<blockquote>
+  <p>这里没有仔细判断多解的情况，有必要的话可以自己实现。</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">;</span>
+<span class="kt">double</span> <span class="n">a</span><span class="p">[</span><span class="n">MAXN</span><span class="p">][</span><span class="n">MAXN</span><span class="p">],</span> <span class="n">ans</span><span class="p">[</span><span class="n">MAXN</span><span class="p">];</span>
+
+<span class="kt">int</span> <span class="nf">Gauss</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">k</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">fabs</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+				<span class="n">k</span> <span class="o">=</span> <span class="n">j</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+			<span class="n">swap</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">EPS</span><span class="p">)</span> <span class="c1">// 无解或多解</span>
+			<span class="k">continue</span><span class="p">;</span>
+
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">m</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="o">==</span> <span class="n">i</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+			<span class="kt">double</span> <span class="n">multiple</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+			<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span> <span class="n">k</span><span class="o">&lt;=</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+				<span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">multiple</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">m</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">abs</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">EPS</span><span class="p">)</span> <span class="c1">// 无解</span>
+			<span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+		<span class="n">ans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="时空复杂度">时空复杂度</h4>
+<p>如代码所示，时间复杂度为 $ O(n^2m) $，空间复杂度为 $ O(nm) $。</p>
+
+<h4 id="其它">其它</h4>
+<blockquote>
+  <p><del>对于一些奇奇怪怪的题目的一些奇奇怪怪的优化或做法。</del></p>
+</blockquote>
+
+<h5 id="只有整数">只有整数</h5>
+<p>在计算过程中，我们可以使用 <code class="highlighter-rouge">int</code> 来保证精度，当然前提是计算过程中不会爆 <code class="highlighter-rouge">int</code>。<br />
+我们在消元的时候，$ \frac{a_{j,i}}{a_{i,i}} $ 不一定是整数，我们只需要求出 $ {a_{j,i}} $ 和 $ {a_{i,i}} $ 的最小公倍数 <code class="highlighter-rouge">Q</code>，然后使 $ a_{j,k} = a_{j,k} \times \frac{Q}{a_{j,i}} - a_{i,k} \times \frac{Q}{a_{i,i}} $ 即可。其原理是先把第 <code class="highlighter-rouge">i</code> 行和第 <code class="highlighter-rouge">j</code> 行各自乘上一个整数，使 $ {a_{j,i}} $ 和 $ {a_{i,i}} $ 都变成了 <code class="highlighter-rouge">Q</code>，然后再相减。<br />
+如果答案可能为实数的话，只要再末尾 <code class="highlighter-rouge">a[i][n+1] / a[i][i]</code> 时化为实数除即可。</p>
+
+<h5 id="异或方程组">异或方程组</h5>
+<p>异或方程组与普通方程组差不多，但是它每个方程的形式为 $ a_1x_1 \verb!^! a_2x_2 \verb!^! \cdots \verb!^! a_nx_n = c $，其中所有系数都是 <code class="highlighter-rouge">0</code> 或 <code class="highlighter-rouge">1</code>。这个方程也可以表示为 $ a_1x_1 + a_2x_2 + \cdots + a_nx_n \equiv c \thickspace (mod \thickspace 2) $。<br />
+这时，上述的三个基本变换为：交换两行、取反一行、一个方程异或另一个方程。<br />
+在选择主元的时候，我们只要找到任意一个 $a_{k,i} = 1$ 即可。如果 $ a_{j,i} = 1 $，那么就拿第 <code class="highlighter-rouge">i</code> 行异或第 <code class="highlighter-rouge">j</code> 行即可。<br />
+最后既然所有数都是 <code class="highlighter-rouge">0</code> 或 <code class="highlighter-rouge">1</code>，所以我们可以用位运算或 <code class="highlighter-rouge">bitset</code> 来加速。加速后的时间复杂度为 $ O(\frac{n^2m}{64}) $。</p>
+
+
+            <blockquote>
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-1x fa-inverse fontawesome-text">CC</i>
+                </span>
+                原创文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0协议</a>进行许可，转载请注明：“转载自：<a href="https://blog-archive.monadx.com/2018/07/17/Gaussian-Elimination/">高斯消元</a>”
+            </blockquote>
+
+            <hr>
+
+            
+            <div id="gitalk-container"></div>
+            
+
+            
+
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/2018/05/23/Splay/" data-toggle="tooltip" data-placement="top" title="伸展树 Splay">&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/2018/07/20/Slope-DP/" data-toggle="tooltip" data-placement="top" title="斜率优化">Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+        </div>
+<!-- Side Catalog Container -->
+    
+        <div class="
+            col-lg-2 col-lg-offset-0
+            visible-lg-block
+            sidebar-container
+            catalog-container">
+            <div class="side-catalog">
+                <hr class="hidden-sm hidden-xs">
+                <h5>
+                    <a class="catalog-toggle" href="#">CATALOG</a>
+                </h5>
+                <ul class="catalog-body"></ul>
+            </div>
+        </div>
+    
+
+<!-- Sidebar Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            sidebar-container">
+
+            <!-- Featured Tags -->
+            
+
+            <!-- Friends Blog -->
+            
+            <hr>
+            <h5>FRIENDS</h5>
+            <ul class="list-inline">
+                
+                    <li><a href="https://ghastlcon.cf">Ghastlcon</a></li>
+                
+                    <li><a href="https://Ufowoqqqo.github.io">Ufowoqqqo</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/littlewyy">wyy</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/yiyiyizqy">zqy</a></li>
+                
+                    <li><a href="https://yhf4aspe.github.io">aspe</a></li>
+                
+                    <li><a href="https://zhengyucheng.github.io">JU</a></li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+
+
+<!-- Gitalk -->
+<script type="text/javascript">
+function LoadGitalk() {
+    if (typeof Gitalk === 'undefined') {
+        setTimeout(LoadGitalk, 100);
+    }
+    else {
+        var gitalk = new Gitalk({
+            clientID: 'a2c5e9f63b2635ec4592',
+            clientSecret: '2a612247e7f9efd3951dac1d6e46307e4d216729',
+            repo: 'YanWQ-monad.github.io-archive',
+            owner: 'YanWQ-monad',
+            admin: ['YanWQ-monad'],
+            id: location.pathname,      // Ensure uniqueness and length less than 50
+            distractionFreeMode: false  // Facebook-like distraction free mode
+        });
+
+        gitalk.render('gitalk-container');
+    }
+}
+LoadGitalk();
+</script>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse fontawesome-text">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://plus.google.com/u/0/112757454778156334087">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-google-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="mailto:YanWQ-monad+blog@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="tencent://message/?uin=643172561">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-qq fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="https://cdn.staticfile.org/jquery/2.1.3/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+<script src="/js/jqeury.nav.min.js "></script>
+
+
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+
+<!-- LightBox -->
+<script src="https://cdn.bootcss.com/lightbox2/2.9.0/js/lightbox.min.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c, a) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (a) {
+        for (var i=0; i<a.length; i++) { o.setAttribute(a[i][0], a[i][1]); }
+      }
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.min.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Canvas-Nest -->
+<!--
+<script>
+    async("https://cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js", undefined, [["count", 32]]);
+</script>
+-->
+
+
+<!-- KaTeX -->
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.js"></script>
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/contrib/auto-render.min.js"></script>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(
+      document.body,
+      {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false },
+        ],
+        macros: {
+          '\\floor': '\\left \\lfloor #1 \\right \\rfloor'
+        }
+      }
+    );
+    enlarge_katex_loaded();
+  });
+</script>
+
+<!-- KaTeX zoom -->
+<script src="/js/katex-zoom.min.js"></script>
+
+
+<!-- LightBox for Markdown -->
+<script type="text/javascript">
+$(function() {
+    $('img').each(function() {
+        var that = $(this);
+        that.closest('a').attr('data-toggle', 'lightbox').attr('rel', 'lightbox').attr('data-title', that.attr('alt'));
+    });
+
+    $(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
+        e.preventDefault();
+        $(this).ekkoLightbox();
+    });
+})
+</script>
+
+<!-- Picture figure -->
+<script type="text/javascript">
+$('img').closest('a').wrap('<figure></figure>');
+
+$(function() {
+    $('figure').each(function() {
+        var that = $(this)[0];
+        var img        = that.getElementsByTagName('a')[0].getElementsByTagName('img')[0];
+        var figcaption = document.createElement('figcaption');
+        var title      = document.createTextNode($(img).attr('alt'));
+        $(figcaption).attr('align', 'center');
+        figcaption.appendChild(title     );
+        that      .appendChild(figcaption);
+    });
+})
+</script>
+
+<!-- Baidu Analytics -->
+
+
+<!-- Google Analytics is in Head -->
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+    generateCatalog(".catalog-body");
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="inmxYleFWM2i9Fx1s0HWWUs-czsecR8bBaYvZnAA9EI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})
+        (window,document,'script','dataLayer','GTM-5BS4ZB2');
+    </script>
+    <!-- End Google Tag Manager -->
+    
+
+    <title>Manacher - Monad's Blog</title>
+
+    <link rel="canonical" href="https://blog-archive.monadx.com/2018/02/09/Manacher/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.min.css">
+
+    <!-- LightBox -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/lightbox2/2.9.0/css/lightbox.min.css">
+
+    <!-- hreflang -->
+    <link rel="alternate" href="https://blog-archive.monadx.com/2018/02/09/Manacher/" hreflang="zh-Hans"/>
+
+    
+    <!-- KaTeX -->
+    <link href="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.css" rel="stylesheet" />
+    <link href="/css/katex-zoom.min.css" rel="stylesheet" />
+    
+
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+
+    <!-- Custom Fonts font-awesome -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!--<link rel="stylesheet" href="/css/font-awesome.min.css">-->
+
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- <body> -->
+
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5BS4ZB2"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top link-effect">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Monad's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post/Manacher/background.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/post/Manacher/background.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#算法" title="算法">算法</a>
+                        
+                    </div>
+                    <h1>Manacher</h1>
+                    
+                    
+                    <h2 class="subheading">tattarrattat？</h2>
+                    
+                    <span class="meta">Posted by Monad on February 9, 2018</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            post-container">
+
+                <blockquote>
+  <p>以下图片为 png 格式，点击放大后为 svg 格式。但 svg 显示需要 <a href="https://github.com/adobe-fonts/source-code-pro/archive/2.030R-ro/1.050R-it.zip">Source Code Pro</a> 字体。</p>
+</blockquote>
+
+<h3 id="介绍">介绍</h3>
+
+<h4 id="最长回文子串问题">最长回文子串问题</h4>
+<p>最长回文子串问题就是：给定一个字符串，求最长的回文子串的长度。</p>
+<blockquote>
+  <p>如果一个字符串正着读和反着读是一样的，那么它就是回文字符串</p>
+</blockquote>
+
+<p>例如，<code class="highlighter-rouge">abacacbaaaabaab</code>的最长的回文子串是<code class="highlighter-rouge">baaaab</code>其长度是 6。<br />
+模板题地址：洛谷：<a href="https://www.luogu.org/problemnew/show/P3805">【模板】manacher算法</a><br />
+　　　　　　POJ：<a href="http://poj.org/problem?id=3974">Palindrome</a></p>
+
+<h4 id="manacher">Manacher</h4>
+<p>Manacher 算法就是用来解决最长回文子串问题的。<br />
+他可以在$O(N)$的时间复杂度下求出最长的回文子串的长度。</p>
+
+<h3 id="原理">原理</h3>
+
+<h4 id="暴力查找">暴力查找</h4>
+<p>如果是刚刚学信息学的小朋友们，一定会想出一个粗暴的方法：枚举每一个子串，并验证它是否为回文串。不过这样做的时间复杂度是$O(N^3)$。<br />
+当然这个暴力还可以优化一下，因为所有的回文串都是对称的，所以我们可以枚举回文串的对称轴，然后往左右两边扩展，这样做的时间复杂度是$O(N^2)$。<br />
+虽然已经减小了一个”$N$”，但是还是不够快。</p>
+
+<h4 id="统一奇偶性">统一奇偶性</h4>
+<p>如果你真的编写了上面$O(N^2)$的方法的话，那么你应该体验到了奇偶性不统一的烦恼吧。<br />
+在 Manacher 中，我们首先要做一个预处理，在每一对相邻的字符之间插入一个相同的字符（例如<code class="highlighter-rouge">#</code>），但是<strong>不能在原串出现过</strong>。举个栗子：</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lgj  → l#g#j
+abba → a#b#b#a
+</code></pre></div></div>
+<p>加了<code class="highlighter-rouge">#</code>字符后，原子串的回文性并不会变，原来不是回文的子串不会变成回文串，原来的回文串也不会变成非回文串（这个还可以理解吧）。<br />
+而且加了<code class="highlighter-rouge">#</code>字符后，对称轴只会出现在整除位置，不会在两个字符的中间，方便了我们下面的运算。<br />
+代码也很简短：（<code class="highlighter-rouge">tmp</code>为原字符串，<code class="highlighter-rouge">str</code>为扩展后的字符串）</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">str</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">%</span><span class="mi">2</span><span class="p">)</span><span class="o">?</span> <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">:</span> <span class="sc">'#'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h4 id="高效求解">高效求解</h4>
+<p>在暴力的做法中，我们做了大量的无用功。</p>
+<blockquote>
+  <p>例如在暴力的<code class="highlighter-rouge">ababaeaba</code>中，<code class="highlighter-rouge">aba</code>（<code class="highlighter-rouge">2~4</code>）被访问了 2 次。</p>
+</blockquote>
+
+<p>我们定义一个回文串的回文半径为：该回文串的对称轴到最远端的距离，例如<code class="highlighter-rouge">abcba</code>的回文半径是 3。我们定义一个<code class="highlighter-rouge">match[]</code>数组，用<code class="highlighter-rouge">match[i]</code>表示以<code class="highlighter-rouge">i</code>为对称轴的回文串的回文半径。<br />
+然后我们发现，<code class="highlighter-rouge">match[i]*2-1</code>就是扩展后的回文串的长度，<code class="highlighter-rouge">match[i]-1</code>就是原回文串的长度。所以只要我们求出来<code class="highlighter-rouge">match[]</code>，我们就能求出答案。<br />
+于是我们的问题就变成了如何快速求出<code class="highlighter-rouge">match</code>数组。</p>
+
+<p>我们在定义两个辅助变量：<code class="highlighter-rouge">right</code>表示在当前访问过的所有的回文子串中，最右端最长能到达<code class="highlighter-rouge">right</code>这个位置。<code class="highlighter-rouge">pos</code>表示这个回文子串的对称轴的位置。用一个图表示这个关系：
+<a href="/img/post/Manacher/right_pos.svg"><img src="/img/post/Manacher/right_pos.png" alt="right与pos" /></a></p>
+
+<p>然后我们访问到第<code class="highlighter-rouge">i</code>个字符，要求<code class="highlighter-rouge">match[i]</code>。我们可以知道，<code class="highlighter-rouge">i</code>一定在<code class="highlighter-rouge">pos</code>的右端。不过它有可能在<code class="highlighter-rouge">right</code>的左端，也可能在<code class="highlighter-rouge">right</code>的右端（或重合）。所以我们要分类讨论。</p>
+
+<h5 id="i--right"><code class="highlighter-rouge">i</code> ≤ <code class="highlighter-rouge">right</code></h5>
+<p><a href="/img/post/Manacher/i_less_right.svg"><img src="/img/post/Manacher/i_less_right.png" alt="i ≤ right" /></a>
+如图所示，因为位置<code class="highlighter-rouge">3~11</code>是回文串，并关于<code class="highlighter-rouge">pos</code>对称，即以<code class="highlighter-rouge">i</code>为中心的回文串的<strong>一部分</strong>也会关于<code class="highlighter-rouge">pos</code>对称，另一部分的中心在<code class="highlighter-rouge">2*pos-i</code>处。<br />
+所以要求<code class="highlighter-rouge">match[i]</code>，也就是求<code class="highlighter-rouge">match[2*pos-i]</code>。不过当前子串可能更长，还要在原来的基础上继续扩展。<br />
+当然，<code class="highlighter-rouge">match[i]</code>的初始值也<strong>不能超出<code class="highlighter-rouge">right</code>的范围</strong>。<br />
+所以最后的结论是，先把<code class="highlighter-rouge">match[i]</code>赋值为<code class="highlighter-rouge">min(match[2*pos-i], right-i+1)</code>。</p>
+
+<h5 id="i--right-1"><code class="highlighter-rouge">i</code> &gt; <code class="highlighter-rouge">right</code></h5>
+<p>这个情况就好办了。<code class="highlighter-rouge">i</code>在“最右回文串”的外面，所以<code class="highlighter-rouge">i</code>没有“先例”，只能从<code class="highlighter-rouge">match[i]=1</code>开始扩展。</p>
+
+<p>综上所述，当求<code class="highlighter-rouge">match[i]</code>时，如果<code class="highlighter-rouge">i &lt;= right</code>，则<code class="highlighter-rouge">match[i] = min(match[2*pos-i], right-i+1)</code>，否则<code class="highlighter-rouge">match[i] = 1</code>，然后再继续扩展。<br />
+完成扩展之后，还要检查一下<code class="highlighter-rouge">match[i]+i-1</code>是否超过<code class="highlighter-rouge">right</code>，如果是，则更新<code class="highlighter-rouge">right</code>。</p>
+
+<h4 id="代码">代码</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">manacher</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">str</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">?</span> <span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">]</span> <span class="o">:</span> <span class="sc">'#'</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">&gt;</span><span class="n">right</span><span class="p">)</span><span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="n">min</span><span class="p">(</span><span class="n">right</span><span class="o">-</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">match</span><span class="p">[</span><span class="n">pos</span><span class="o">*</span><span class="mi">2</span><span class="o">-</span><span class="n">i</span><span class="p">]);</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">i</span><span class="o">+</span><span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">len</span> <span class="o">&amp;&amp;</span> <span class="n">str</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">==</span> <span class="n">str</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+            <span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">++</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span> <span class="o">&gt;</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">match</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="时间复杂度">时间复杂度</h3>
+<p>先说结论：Manacher 的时间复杂度是$O(N)$。</p>
+
+<p>关于时间复杂度，大家看到代码可能会有一个错觉，就是双重循环的时间复杂度是$O(N^2)$的。是的，<code class="highlighter-rouge">while</code>循环在没有限制的时候的确是$O(N)$的，但是这里不一样。我们要明确一个地方，就是<code class="highlighter-rouge">while</code>循环会在什么时候进入。<br />
+答案就是，仅当<code class="highlighter-rouge">match[i]+i-1 &gt;= right</code>时，才可能进入<code class="highlighter-rouge">while</code>循环。为什么？因为<code class="highlighter-rouge">right</code>是我们目前能访问到的最远的字符，如果<code class="highlighter-rouge">match[i]+i-1</code>，我们就到达了未知区域，无法利用已有信息，所以需要进入<code class="highlighter-rouge">while</code>循环进行扩展。<br />
+重点在于，<code class="highlighter-rouge">while</code>循环每执行一次，<code class="highlighter-rouge">match[i]</code>都会<code class="highlighter-rouge">+1</code>，又因为<code class="highlighter-rouge">match[i]+i-1 &gt;= right</code>，所以每一次循环都会更新<code class="highlighter-rouge">right</code>。<code class="highlighter-rouge">right</code>最远只会到达<code class="highlighter-rouge">n</code>，所以<code class="highlighter-rouge">while</code>循环总共只会执行<code class="highlighter-rouge">n</code>次，不存在与<code class="highlighter-rouge">for</code>循环的乘法关系。</p>
+
+<p>那大家可能又有问题了：为什么当<code class="highlighter-rouge">match[i]+i-1 &lt; right</code>时，就不会进入<code class="highlighter-rouge">while</code>循环呢？<br />
+当<code class="highlighter-rouge">match[i]+i-1 &lt; right</code>时，可以推断<code class="highlighter-rouge">i &lt; right</code>（因为<code class="highlighter-rouge">match[i] &gt;= 1</code>），那么<code class="highlighter-rouge">match[i]</code>基于<code class="highlighter-rouge">match[pos*2-i]</code>，点<code class="highlighter-rouge">match[i]+i-1</code>关于<code class="highlighter-rouge">pos</code>对称的点<code class="highlighter-rouge">pos*2-(match[i]+i-1)</code>（以下简称<code class="highlighter-rouge">B</code>）也一定在这个“最右回文串”之内。<br />
+此时如果<code class="highlighter-rouge">match[i]</code>继续可以扩展，那么<code class="highlighter-rouge">match[B]</code>也可以继续扩展，与<code class="highlighter-rouge">match[]</code>的定义矛盾了。如果不能继续扩展，自然也不会进入<code class="highlighter-rouge">while</code>循环了。</p>
+
+<p>所以 Manacher 的时间复杂度是$O(N)$。</p>
+
+
+            <blockquote>
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-1x fa-inverse fontawesome-text">CC</i>
+                </span>
+                原创文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0协议</a>进行许可，转载请注明：“转载自：<a href="https://blog-archive.monadx.com/2018/02/09/Manacher/">Manacher</a>”
+            </blockquote>
+
+            <hr>
+
+            
+            <div id="gitalk-container"></div>
+            
+
+            
+
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/2018/02/07/KMP/" data-toggle="tooltip" data-placement="top" title="Knuth Morris Pratt">&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/2018/02/12/Trie/" data-toggle="tooltip" data-placement="top" title="Trie">Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+        </div>
+<!-- Side Catalog Container -->
+    
+        <div class="
+            col-lg-2 col-lg-offset-0
+            visible-lg-block
+            sidebar-container
+            catalog-container">
+            <div class="side-catalog">
+                <hr class="hidden-sm hidden-xs">
+                <h5>
+                    <a class="catalog-toggle" href="#">CATALOG</a>
+                </h5>
+                <ul class="catalog-body"></ul>
+            </div>
+        </div>
+    
+
+<!-- Sidebar Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            sidebar-container">
+
+            <!-- Featured Tags -->
+            
+
+            <!-- Friends Blog -->
+            
+            <hr>
+            <h5>FRIENDS</h5>
+            <ul class="list-inline">
+                
+                    <li><a href="https://ghastlcon.cf">Ghastlcon</a></li>
+                
+                    <li><a href="https://Ufowoqqqo.github.io">Ufowoqqqo</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/littlewyy">wyy</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/yiyiyizqy">zqy</a></li>
+                
+                    <li><a href="https://yhf4aspe.github.io">aspe</a></li>
+                
+                    <li><a href="https://zhengyucheng.github.io">JU</a></li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+
+
+<!-- Gitalk -->
+<script type="text/javascript">
+function LoadGitalk() {
+    if (typeof Gitalk === 'undefined') {
+        setTimeout(LoadGitalk, 100);
+    }
+    else {
+        var gitalk = new Gitalk({
+            clientID: 'a2c5e9f63b2635ec4592',
+            clientSecret: '2a612247e7f9efd3951dac1d6e46307e4d216729',
+            repo: 'YanWQ-monad.github.io-archive',
+            owner: 'YanWQ-monad',
+            admin: ['YanWQ-monad'],
+            id: location.pathname,      // Ensure uniqueness and length less than 50
+            distractionFreeMode: false  // Facebook-like distraction free mode
+        });
+
+        gitalk.render('gitalk-container');
+    }
+}
+LoadGitalk();
+</script>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse fontawesome-text">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://plus.google.com/u/0/112757454778156334087">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-google-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="mailto:YanWQ-monad+blog@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="tencent://message/?uin=643172561">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-qq fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="https://cdn.staticfile.org/jquery/2.1.3/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+<script src="/js/jqeury.nav.min.js "></script>
+
+
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+
+<!-- LightBox -->
+<script src="https://cdn.bootcss.com/lightbox2/2.9.0/js/lightbox.min.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c, a) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (a) {
+        for (var i=0; i<a.length; i++) { o.setAttribute(a[i][0], a[i][1]); }
+      }
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.min.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Canvas-Nest -->
+<!--
+<script>
+    async("https://cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js", undefined, [["count", 32]]);
+</script>
+-->
+
+
+<!-- KaTeX -->
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.js"></script>
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/contrib/auto-render.min.js"></script>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(
+      document.body,
+      {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false },
+        ],
+        macros: {
+          '\\floor': '\\left \\lfloor #1 \\right \\rfloor'
+        }
+      }
+    );
+    enlarge_katex_loaded();
+  });
+</script>
+
+<!-- KaTeX zoom -->
+<script src="/js/katex-zoom.min.js"></script>
+
+
+<!-- LightBox for Markdown -->
+<script type="text/javascript">
+$(function() {
+    $('img').each(function() {
+        var that = $(this);
+        that.closest('a').attr('data-toggle', 'lightbox').attr('rel', 'lightbox').attr('data-title', that.attr('alt'));
+    });
+
+    $(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
+        e.preventDefault();
+        $(this).ekkoLightbox();
+    });
+})
+</script>
+
+<!-- Picture figure -->
+<script type="text/javascript">
+$('img').closest('a').wrap('<figure></figure>');
+
+$(function() {
+    $('figure').each(function() {
+        var that = $(this)[0];
+        var img        = that.getElementsByTagName('a')[0].getElementsByTagName('img')[0];
+        var figcaption = document.createElement('figcaption');
+        var title      = document.createTextNode($(img).attr('alt'));
+        $(figcaption).attr('align', 'center');
+        figcaption.appendChild(title     );
+        that      .appendChild(figcaption);
+    });
+})
+</script>
+
+<!-- Baidu Analytics -->
+
+
+<!-- Google Analytics is in Head -->
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+    generateCatalog(".catalog-body");
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+</body>
+
+</html>

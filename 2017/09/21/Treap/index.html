@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="inmxYleFWM2i9Fx1s0HWWUs-czsecR8bBaYvZnAA9EI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})
+        (window,document,'script','dataLayer','GTM-5BS4ZB2');
+    </script>
+    <!-- End Google Tag Manager -->
+    
+
+    <title>Treap - Monad's Blog</title>
+
+    <link rel="canonical" href="https://blog-archive.monadx.com/2017/09/21/Treap/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.min.css">
+
+    <!-- LightBox -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/lightbox2/2.9.0/css/lightbox.min.css">
+
+    <!-- hreflang -->
+    <link rel="alternate" href="https://blog-archive.monadx.com/2017/09/21/Treap/" hreflang="zh-Hans"/>
+
+    
+    <!-- KaTeX -->
+    <link href="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.css" rel="stylesheet" />
+    <link href="/css/katex-zoom.min.css" rel="stylesheet" />
+    
+
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+
+    <!-- Custom Fonts font-awesome -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!--<link rel="stylesheet" href="/css/font-awesome.min.css">-->
+
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- <body> -->
+
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5BS4ZB2"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top link-effect">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Monad's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post/Treap/Background.png" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/img/post/Treap/Background.png')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#数据结构" title="数据结构">数据结构</a>
+                        
+                    </div>
+                    <h1>Treap</h1>
+                    
+                    
+                    <h2 class="subheading">一种比较平衡的二叉搜索树</h2>
+                    
+                    <span class="meta">Posted by Monad on September 21, 2017</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<div class="container">
+    <div class="row">
+        <!-- Post Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            post-container">
+
+                <h3 id="概述">概述</h3>
+<p>Treap是什么？Treap = Tree + Heap !<br />
+我们知道，在BST中，插入有序数据会导致BST退化成一条链（有些极限数据就是这样）。那么我们要怎么办呢？<br />
+其实其他大神们在此之前已经注意到了这个问题，所以他们就研发了一种新的东西，就是在BST的基础上，给每一个节点额外地加上了一个<code class="highlighter-rouge">fix</code>值（中文为修正值），然后这棵树除了要满足BST的性质之外，还要符合堆的性质（堆的值是fix）（这里是最小堆）。所以就有了一个新的东西：Treap。<br />
+这样，Treap的形态就不仅仅由<code class="highlighter-rouge">value</code>控制，而且还由<code class="highlighter-rouge">fix</code>控制。我们只要保证<code class="highlighter-rouge">fix</code>足够随机，这棵树就不会轻易地退化成一条链，平均（理想）深度为$\log_n$。</p>
+
+<h3 id="左旋右旋">左旋？右旋！</h3>
+<p>那么不是每次操作都是刚好能同时符合两个性质的。有时候我们改变了一些节点，使它满足BST的性质，但是却破坏了堆的性质，怎么办呢？<br />
+因为此时已经满足了BST性质，所以可以在不破坏BST性质的前提下，使它满足堆的性质。<br />
+所以Treap的发明者又弄出来了两个东西：左旋、右旋。就是用来修复堆的性质的。</p>
+<h4 id="右旋">右旋</h4>
+<p>举个栗子，像下面的图<br />
+<a href="/img/post/Treap/RightRotate.png"><img src="/img/post/Treap/RightRotate.png" alt="Treap R" /></a>
+如果B.fix &gt; A.fix，那么就不符合最小堆的性质，那么我们可以对B点进行左旋操作，就是把B改成A的右孩，B的左孩改成β。讲得太抽象了？没事，下面有动画！<br />
+<a href="/img/post/Treap/RightRotating.gif"><img src="/img/post/Treap/RightRotating.gif" alt="Right Rotate" /></a>
+所以右旋的代码是这个样子滴：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">leftRotate</span><span class="p">(</span><span class="n">NODE</span> <span class="o">*&amp;</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NODE</span> <span class="o">*</span><span class="n">t</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="p">;</span>
+    <span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span> <span class="o">=</span> <span class="n">t</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+    <span class="n">t</span><span class="o">-&gt;</span><span class="n">left</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="左旋">左旋</h4>
+<p>举个栗子，还是下面的图<br />
+<a href="/img/post/Treap/LeftRotate.png"><img src="/img/post/Treap/LeftRotate.png" alt="Treap L" /></a>
+如果<code class="highlighter-rouge">A.fix</code> &gt; <code class="highlighter-rouge">B.fix</code>，那么就不符合最小堆的性质，那么我们可以对A点进行左旋操作，就是把A改成B的左孩，A的右孩改成β。讲得太抽象了？没事，下面还是有动画！<br />
+<a href="/img/post/Treap/LeftRotating.gif"><img src="/img/post/Treap/LeftRotating.gif" alt="Left Rotate" /></a>
+所以左旋的代码是这个样子滴：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">rghtRotate</span><span class="p">(</span><span class="n">NODE</span> <span class="o">*&amp;</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NODE</span> <span class="o">*</span><span class="n">t</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+    <span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span> <span class="o">=</span> <span class="n">t</span><span class="o">-&gt;</span><span class="n">rght</span><span class="p">;</span>
+    <span class="n">t</span><span class="o">-&gt;</span><span class="n">rght</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><em>一句话，旋转就是一种不会破坏BST性质还会修复堆性质的旋转</em><br />
+算了，还是证明一下比较好，证明不会破坏BST性质：<br />
+首先，以左旋为例，旋转前，<code class="highlighter-rouge">value[A]</code>&lt;<code class="highlighter-rouge">value[β]</code>&lt;<code class="highlighter-rouge">value[B]</code>（α和γ没有变，所以可以不讨论）；旋转后，依然还是<code class="highlighter-rouge">value[A]</code>&lt;<code class="highlighter-rouge">value[β]</code>&lt;<code class="highlighter-rouge">value[B]</code>，所以不会破坏BST性质。</p>
+
+<h3 id="遍历--查找">遍历 &amp; 查找</h3>
+<p>因为这棵树也是一棵BST树，所以这些操作跟BST的完全相同！<br />
+遍历：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="k">const</span> <span class="n">NODE</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"("</span><span class="p">);</span>
+        <span class="n">print</span><span class="p">(</span><span class="n">p</span> <span class="o">-&gt;</span> <span class="n">left</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">" %d "</span><span class="p">,</span> <span class="n">p</span> <span class="o">-&gt;</span> <span class="n">value</span><span class="p">);</span>
+        <span class="n">print</span><span class="p">(</span><span class="n">p</span> <span class="o">-&gt;</span> <span class="n">rght</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">")"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>查找：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">NODE</span><span class="o">*</span> <span class="nf">find</span><span class="p">(</span><span class="n">NODE</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span>      <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span>                <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">)</span> <span class="k">return</span> <span class="n">p</span><span class="p">;</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">value</span> <span class="o">&gt;</span>  <span class="n">value</span><span class="p">)</span> <span class="k">return</span> <span class="n">find</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+    <span class="k">else</span>                        <span class="k">return</span> <span class="n">find</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="插入">插入</h3>
+<p>插入的标准操作就是这样：</p>
+<ol>
+  <li>从根节点开始插入；</li>
+  <li>如果要插入的值小于等于当前节点的值，在当前节点的左子树中插入，插入后如果左子节点的修正值小于当前节点的修正值，对当前节点进行右旋；</li>
+  <li>如果要插入的值大于当前节点的值，在当前节点的右子树中插入，插入后如果右子节点的修正值小于当前节点的修正值，对当前节点进行左旋；</li>
+  <li>如果当前节点为空节点，在此建立新的节点，该节点的值为要插入的值，左右子树为空。</li>
+</ol>
+
+<p>太烦了？一句话概括，就是在底端合适的位置先插入，然后再用左右旋把这个节点一步一步地旋转上去。<br />
+按照上面的操作，可得代码：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">insert</span><span class="p">(</span><span class="n">NODE</span> <span class="o">*&amp;</span><span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="n">NODE</span><span class="p">();</span>
+        <span class="n">p</span><span class="o">-&gt;</span><span class="n">fix</span>   <span class="o">=</span> <span class="n">rand</span><span class="p">();</span>
+        <span class="n">p</span><span class="o">-&gt;</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">insert</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">-&gt;</span><span class="n">fix</span> <span class="o">&lt;</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">fix</span><span class="p">)</span>
+            <span class="n">rghtRotate</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="n">insert</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="o">-&gt;</span><span class="n">fix</span> <span class="o">&lt;</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">fix</span><span class="p">)</span>
+            <span class="n">leftRotate</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="删除">删除</h3>
+<p>如果这个点至多有一个孩子（一个或没有），那么这个节点肯定是可以被立刻删除的。（可以用孩子代替该点的位置）<br />
+但是如果有两个孩子那怎么办呢？我们可以通过旋转使这个节点变成可以立刻删除的点。如果该节点的左孩的修正值小于右孩的修正值，右旋该节点，否则左旋该节点。直到只有一个孩子就可以删除了。<br />
+所以删除的代码如下：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">remove</span><span class="p">(</span><span class="n">NODE</span> <span class="o">*&amp;</span><span class="n">p</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span> <span class="o">||</span> <span class="o">!</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">NODE</span> <span class="o">*</span><span class="n">t</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="p">)</span> <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+            <span class="k">else</span>          <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="p">;</span>
+            <span class="k">delete</span> <span class="n">t</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">-&gt;</span><span class="n">fix</span> <span class="o">&lt;</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="o">-&gt;</span><span class="n">fix</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">rghtRotate</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+                <span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">else</span> <span class="p">{</span>
+                <span class="n">leftRotate</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+                <span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">)</span> <span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+    <span class="k">else</span>                       <span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">rght</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="时间复杂度">时间复杂度</h3>
+<p>因为这是一棵BST树，而且在Treap算法的优化下能优化到平均深度为$\log_n$，所以查找、插入、删除的时间复杂度是$O(\log_n)$。</p>
+
+
+            <blockquote>
+                <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-1x fa-inverse fontawesome-text">CC</i>
+                </span>
+                原创文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0协议</a>进行许可，转载请注明：“转载自：<a href="https://blog-archive.monadx.com/2017/09/21/Treap/">Treap</a>”
+            </blockquote>
+
+            <hr>
+
+            
+            <div id="gitalk-container"></div>
+            
+
+            
+
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/2017/08/20/How-to-use-Sublime/" data-toggle="tooltip" data-placement="top" title="Sublime Text">&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/2017/11/11/NOIP2017/" data-toggle="tooltip" data-placement="top" title="NOIP 2017">Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+        </div>
+<!-- Side Catalog Container -->
+    
+        <div class="
+            col-lg-2 col-lg-offset-0
+            visible-lg-block
+            sidebar-container
+            catalog-container">
+            <div class="side-catalog">
+                <hr class="hidden-sm hidden-xs">
+                <h5>
+                    <a class="catalog-toggle" href="#">CATALOG</a>
+                </h5>
+                <ul class="catalog-body"></ul>
+            </div>
+        </div>
+    
+
+<!-- Sidebar Container -->
+        <div class="
+            col-lg-8 col-lg-offset-2
+            col-md-10 col-md-offset-1
+            sidebar-container">
+
+            <!-- Featured Tags -->
+            
+
+            <!-- Friends Blog -->
+            
+            <hr>
+            <h5>FRIENDS</h5>
+            <ul class="list-inline">
+                
+                    <li><a href="https://ghastlcon.cf">Ghastlcon</a></li>
+                
+                    <li><a href="https://Ufowoqqqo.github.io">Ufowoqqqo</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/littlewyy">wyy</a></li>
+                
+                    <li><a href="https://www.cnblogs.com/yiyiyizqy">zqy</a></li>
+                
+                    <li><a href="https://yhf4aspe.github.io">aspe</a></li>
+                
+                    <li><a href="https://zhengyucheng.github.io">JU</a></li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+
+
+<!-- Gitalk -->
+<script type="text/javascript">
+function LoadGitalk() {
+    if (typeof Gitalk === 'undefined') {
+        setTimeout(LoadGitalk, 100);
+    }
+    else {
+        var gitalk = new Gitalk({
+            clientID: 'a2c5e9f63b2635ec4592',
+            clientSecret: '2a612247e7f9efd3951dac1d6e46307e4d216729',
+            repo: 'YanWQ-monad.github.io-archive',
+            owner: 'YanWQ-monad',
+            admin: ['YanWQ-monad'],
+            id: location.pathname,      // Ensure uniqueness and length less than 50
+            distractionFreeMode: false  // Facebook-like distraction free mode
+        });
+
+        gitalk.render('gitalk-container');
+    }
+}
+LoadGitalk();
+</script>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse fontawesome-text">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://plus.google.com/u/0/112757454778156334087">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-google-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="mailto:YanWQ-monad+blog@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="tencent://message/?uin=643172561">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-qq fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="https://cdn.staticfile.org/jquery/2.1.3/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+<script src="/js/jqeury.nav.min.js "></script>
+
+
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+
+<!-- LightBox -->
+<script src="https://cdn.bootcss.com/lightbox2/2.9.0/js/lightbox.min.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c, a) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (a) {
+        for (var i=0; i<a.length; i++) { o.setAttribute(a[i][0], a[i][1]); }
+      }
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.min.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Canvas-Nest -->
+<!--
+<script>
+    async("https://cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js", undefined, [["count", 32]]);
+</script>
+-->
+
+
+<!-- KaTeX -->
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/katex.min.js"></script>
+<script src="https://cdn.staticfile.org/KaTeX/0.10.0-beta/contrib/auto-render.min.js"></script>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(
+      document.body,
+      {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false },
+        ],
+        macros: {
+          '\\floor': '\\left \\lfloor #1 \\right \\rfloor'
+        }
+      }
+    );
+    enlarge_katex_loaded();
+  });
+</script>
+
+<!-- KaTeX zoom -->
+<script src="/js/katex-zoom.min.js"></script>
+
+
+<!-- LightBox for Markdown -->
+<script type="text/javascript">
+$(function() {
+    $('img').each(function() {
+        var that = $(this);
+        that.closest('a').attr('data-toggle', 'lightbox').attr('rel', 'lightbox').attr('data-title', that.attr('alt'));
+    });
+
+    $(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
+        e.preventDefault();
+        $(this).ekkoLightbox();
+    });
+})
+</script>
+
+<!-- Picture figure -->
+<script type="text/javascript">
+$('img').closest('a').wrap('<figure></figure>');
+
+$(function() {
+    $('figure').each(function() {
+        var that = $(this)[0];
+        var img        = that.getElementsByTagName('a')[0].getElementsByTagName('img')[0];
+        var figcaption = document.createElement('figcaption');
+        var title      = document.createTextNode($(img).attr('alt'));
+        $(figcaption).attr('align', 'center');
+        figcaption.appendChild(title     );
+        that      .appendChild(figcaption);
+    });
+})
+</script>
+
+<!-- Baidu Analytics -->
+
+
+<!-- Google Analytics is in Head -->
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+    generateCatalog(".catalog-body");
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+</body>
+
+</html>

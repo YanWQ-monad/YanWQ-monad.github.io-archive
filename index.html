@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="inmxYleFWM2i9Fx1s0HWWUs-czsecR8bBaYvZnAA9EI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})
+        (window,document,'script','dataLayer','GTM-5BS4ZB2');
+    </script>
+    <!-- End Google Tag Manager -->
+    
+
+    <title>Monad's Blog</title>
+
+    <link rel="canonical" href="https://blog-archive.monadx.com/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.min.css">
+
+    <!-- LightBox -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/lightbox2/2.9.0/css/lightbox.min.css">
+
+    <!-- hreflang -->
+    <link rel="alternate" href="https://blog-archive.monadx.com/" hreflang="zh-Hans"/>
+
+    
+
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+
+    <!-- Custom Fonts font-awesome -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!--<link rel="stylesheet" href="/css/font-awesome.min.css">-->
+
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- <body> -->
+
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5BS4ZB2"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top link-effect">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Monad's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Page Header -->
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 ">
+                <div class="site-heading">
+                    <h1>Monad's Blog</h1>
+                    <!--<hr class="small">-->
+                    <span class="subheading">A blog of Monad</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        
+
+<!-- USE SIDEBAR -->
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                post-container
+            ">
+                
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/11/13/NOIP-2018/" href="/2018/11/13/NOIP-2018/">
+        <h2 itemprop="name" class="post-title">
+            NOIP 2018 游记
+        </h2>
+        
+        <h3 class="post-subtitle">
+            AFO.
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            
+  突然想起来好像 NOIP 2017 游记“明天再写”的 flag 还在……
+
+
+Day 0
+上午考完假的信心赛，中午机房第一次锁门，只能回去睡觉。14:45 出发，一小时多后抵达万达。
+晚上去万达吃饭，不知是不是命运的安排，居然去了跟往年一模一样的店吃饭，而且坐的桌子还一样，座位也一样（除了当时的 yhf 换成了 lty）。
+晚上回去忘记干了什么，企图换房失败，大概十点多就睡了。
+
+D...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-11-13">
+            November 13, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/07/24/M%C3%B6bius-inversion/" href="/2018/07/24/M%C3%B6bius-inversion/">
+        <h2 itemprop="name" class="post-title">
+            莫比乌斯反演
+        </h2>
+        
+        <h3 class="post-subtitle">
+            
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            引入
+首先，我们有一个公式：$ F(n) = \sum_{d|n} G(d) $。然后我们可以通过 G 来算出 F。例如 $F(6) = G(1) + G(2) + G(3) + G(6)$。
+如果我们可以算出 F 的值，那我们可以通过 F 来推出 G。
+根据定义，可得：
+
+  $ G(1) = F(1) $
+  $ G(2) = F(2) - F(1) $
+  $ G(3) = F(3) ...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-07-24">
+            July 24, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/07/20/Slope-DP/" href="/2018/07/20/Slope-DP/">
+        <h2 itemprop="name" class="post-title">
+            斜率优化
+        </h2>
+        
+        <h3 class="post-subtitle">
+            数学——人类精神虐待
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            引入
+开门见山，斜率优化是用来优化如下的 DP 转移方程的。
+
+$$
+f(i) = \max \{ f(j) + g(i) \times x(j) + t(j) + h(i) \} \tag{1}
+$$
+
+这个方程的特点是，每一个决策 j 的价值不仅与 j 自身有关，还跟当前状态 i 有关。
+如果没有 $ g(i) \times x(j) $ 的情况下，我们就可以使用单调队列优化。但是如果有...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-07-20">
+            July 20, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/07/17/Gaussian-Elimination/" href="/2018/07/17/Gaussian-Elimination/">
+        <h2 itemprop="name" class="post-title">
+            高斯消元
+        </h2>
+        
+        <h3 class="post-subtitle">
+            
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            引入
+我们把含有 n 个未知数且最高次数为 1 的方程称为“n 元线性方程”。
+
+  如 $ 3x_1 + 5x_2 - 2x_3 = 5 $ 就是一个 3 元线性方程。
+
+
+然后我们把若干个 n 元线性方程列在一起，就构成了一个 n 元线性方程组。
+
+  如 $ \begin{cases} x + 2y = 5 \\ 2x - y = 1 \end{cases} $ 就是一个 2 元线性方...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-07-17">
+            July 17, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/05/23/Splay/" href="/2018/05/23/Splay/">
+        <h2 itemprop="name" class="post-title">
+            伸展树 Splay
+        </h2>
+        
+        <h3 class="post-subtitle">
+            垃圾代码制造器
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            概述
+伸展树（Splay）是二叉查找树的一种改进，所以和二叉查找树一样，Splay 也具有有序性。也就是说，对于 Splay 中的每一个节点 x，都满足其左树的每一个节点都小于 x，且左树的每一个节点都大于 x，也就是中序遍历的节点顺序不变。并且伸展树可以自我调整，方法就是下面的伸展操作。
+
+伸展操作
+
+概念
+我们把 splay(r, x)（注意大小写）定义为把 Splay 中的第 x 个节...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-05-23">
+            May 23, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/05/20/Middle/" href="/2018/05/20/Middle/">
+        <h2 itemprop="name" class="post-title">
+            [国家集训队] Middle
+        </h2>
+        
+        <h3 class="post-subtitle">
+            
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            题意
+给你一个长度 n 的数列 a[]，然后再给你 q 个询问（强制在线），每个询问给出 a, b, c, d 四个正整数，让你求 l 在 [a, b] 之间、r 在 [c, d] 的子序列 [l, r] 中的最大中位数（中位数向下取整）。
+题目链接：洛谷
+
+思路
+这道题有点无从下手，先离散化 a，假设 [l, r] 是确定的，设区间总长度为 m，那我们先二分一个中位数 mid 吧。然后我们...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-05-20">
+            May 20, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/05/17/Persistent-segment-tree/" href="/2018/05/17/Persistent-segment-tree/">
+        <h2 itemprop="name" class="post-title">
+            可持久化线段树
+        </h2>
+        
+        <h3 class="post-subtitle">
+            直接修改？不存在的
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            普通线段树
+普通线段树就是一种能储存一个区间信息的一种二叉树，其每个节点都可以都可以储存一段区间的总体信息（例如和、最值等）。利用这些特性可以很方便地求出某一段区间的和、最值，在这里就不加讨论了。
+
+可持久化线段树
+可持久化线段树，又称主席树，是可以持久的一种数据结构。
+构建
+可持久化就是指可以很快地访问某一个历史时刻的信息，不需要再重新构建、还原。
+如下图所示，是一棵普通线段树。节点内的值...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-05-17">
+            May 17, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/05/17/Trie-optimize-DP/" href="/2018/05/17/Trie-optimize-DP/">
+        <h2 itemprop="name" class="post-title">
+            [SPOJ] Video game combos
+        </h2>
+        
+        <h3 class="post-subtitle">
+            AC自动机 优化 DP
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            题意
+链接：SPOJ、洛谷。
+大意：给你一些关键词 S[]，然后让你构造一个指定长度的字符串 T（都只有 ABC 三种字符），使每个 S[i] 在 T 中的出现次数的和最大，并且输出这个数值。
+
+做法
+首先这道题可以用 DP，因为我们肯定要枚举 T 的长度，所以我们可以把 f 加一维 i，用 f[i] 表示前 i 个字符。
+然后因为每个 S 的长度不超过 15，为了转移，我们要把这 15 个...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-05-17">
+            May 17, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/04/29/GDOI-2018/" href="/2018/04/29/GDOI-2018/">
+        <h2 itemprop="name" class="post-title">
+            GDOI 2018
+        </h2>
+        
+        <h3 class="post-subtitle">
+            GDOI 五日游
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            概述
+这次 GDOI 2018，可以说是史上区分度最高的一次 GDOI，它成功地把没有做过原题和做过原题的选手给区分开了（笑），据说这次 8 题中大部分是原题。
+这次发挥的不太好，Day1 160，Day2 10（爆炸），没能进 Day3。
+
+详情
+
+市选
+这次 GDOI 爆炸可以追溯到市选。市选的题和去年的相比，不是同一个难度。由于初三要应付垃圾中考，OI 手感不断下降。于是乎，我的市选该...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-04-29">
+            April 29, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+<div itemscope itemtype="http://schema.org/Article" class="post-preview">
+    <a itemprop="url" content="https://blog-archive.monadx.com/2018/02/12/Trie/" href="/2018/02/12/Trie/">
+        <h2 itemprop="name" class="post-title">
+            Trie
+        </h2>
+        
+        <h3 class="post-subtitle">
+            树？图？AC？
+        </h3>
+        
+        <div itemprop="articleBody" class="post-content-preview">
+            Trie 树
+
+定义
+Trie 树，又称“字典树”，是一种可以进行字符串快速匹配的多叉树结构。它有一个空的根节点，它的信息储存在边上，而不是点上。所以字符串不是直接储存在它的节点中，而是由节点所在的位置决定。
+
+
+
+  注意：点中的单词不是节点中储存的内容，而是为了便于理解才标出来的。
+
+
+如上图所示是一棵 Trie 树，它储存了三个单词：car, cat, cut。可以看到，一个点所表示的...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by
+        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span itemprop="name">
+                Monad
+            </span>
+        </span>
+        on
+        <span itemprop="datePublished" itemprop="dateModified" content="2018-02-12">
+            February 12, 2018
+        </span>
+    </p>
+</div>
+<hr>
+
+
+<!-- Pager -->
+
+<ul class="pager">
+    
+    
+    <li class="next">
+        <a href="/page2">Older Posts &rarr;</a>
+    </li>
+    
+</ul>
+
+
+            </div>
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-3 col-lg-offset-0
+                col-md-3 col-md-offset-0
+                col-sm-12
+                col-xs-12
+                sidebar-container
+            ">
+                <!-- Featured Tags -->
+                
+
+                <!-- Short About -->
+                <section class="visible-md visible-lg">
+                    <hr><h5><a href="/about/">ABOUT ME</a></h5>
+                    <div class="short-about">
+                        
+                            <img src="/img/Avatar.png" />
+                        
+                        
+                            <p>一入OI深似海，从此智商是路人</p>
+                        
+                        <!-- SNS Link -->
+                        <!--
+                        <ul class="list-inline">
+                            
+                            <li>
+                                <a href="/feed.xml">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            
+                            
+                            
+                            <li>
+                                <a target="_blank" href="https://www.zhihu.com/people/YanWQ-monad">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa  fa-stack-1x fa-inverse">知</i>
+                                    </span>
+                                </a>
+                            </li>
+                            
+                            
+                            
+                            
+                            <li>
+                                <a target="_blank" href="https://github.com/YanWQ-monad">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                        -->
+                    </div>
+                </section>
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <!-- <ul class="list-inline"> -->
+                <ul>
+                    
+                        <li>
+                        <a href="https://ghastlcon.cf">Ghastlcon</a>
+                        
+                        </li>
+                    
+                        <li>
+                        <a href="https://Ufowoqqqo.github.io">Ufowoqqqo</a>
+                        
+                        </li>
+                    
+                        <li>
+                        <a href="https://www.cnblogs.com/littlewyy">wyy</a>
+                        
+                        </li>
+                    
+                        <li>
+                        <a href="https://www.cnblogs.com/yiyiyizqy">zqy</a>
+                        
+                        </li>
+                    
+                        <li>
+                        <a href="https://yhf4aspe.github.io">aspe</a>
+                        
+                        </li>
+                    
+                        <li>
+                        <a href="https://zhengyucheng.github.io">JU</a>
+                        
+                        </li>
+                    
+                </ul>
+                
+            </div>
+        
+    </div>
+</div>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse fontawesome-text">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://plus.google.com/u/0/112757454778156334087">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-google-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/YanWQ-monad">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="mailto:YanWQ-monad+blog@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="tencent://message/?uin=643172561">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-qq fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="https://cdn.staticfile.org/jquery/2.1.3/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+
+<!-- LightBox -->
+<script src="https://cdn.bootcss.com/lightbox2/2.9.0/js/lightbox.min.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c, a) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (a) {
+        for (var i=0; i<a.length; i++) { o.setAttribute(a[i][0], a[i][1]); }
+      }
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.min.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Canvas-Nest -->
+<!--
+<script>
+    async("https://cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.min.js", undefined, [["count", 32]]);
+</script>
+-->
+
+
+
+<!-- LightBox for Markdown -->
+<script type="text/javascript">
+$(function() {
+    $('img').each(function() {
+        var that = $(this);
+        that.closest('a').attr('data-toggle', 'lightbox').attr('rel', 'lightbox').attr('data-title', that.attr('alt'));
+    });
+
+    $(document).delegate('*[data-toggle="lightbox"]', 'click', function(e) {
+        e.preventDefault();
+        $(this).ekkoLightbox();
+    });
+})
+</script>
+
+<!-- Picture figure -->
+<script type="text/javascript">
+$('img').closest('a').wrap('<figure></figure>');
+
+$(function() {
+    $('figure').each(function() {
+        var that = $(this)[0];
+        var img        = that.getElementsByTagName('a')[0].getElementsByTagName('img')[0];
+        var figcaption = document.createElement('figcaption');
+        var title      = document.createTextNode($(img).attr('alt'));
+        $(figcaption).attr('align', 'center');
+        figcaption.appendChild(title     );
+        that      .appendChild(figcaption);
+    });
+})
+</script>
+
+<!-- Baidu Analytics -->
+
+
+<!-- Google Analytics is in Head -->
+
+<!-- Side Catalog -->
+
+
+
+</body>
+
+</html>
